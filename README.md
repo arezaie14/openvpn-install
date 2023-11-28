@@ -12,11 +12,18 @@ Run the script and follow the assistant:
 
 Once it ends, you can run it again to add more users, remove some of them or even completely uninstall OpenVPN.
 
-### I want to run my own VPN but don't have a server for that
-You can get a VPS from just 2€/month at [AlphaVPS](https://alphavps.com/clients/aff.php?aff=474&pid=422).
+### If Firewalld rules removed just run these:
 
-### Donations
-If you want to show your appreciation, you can donate via [PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VBAYDL34Z7J6L) or [cryptocurrency](https://pastebin.com/raw/M2JJpQpC). Thanks!
+firewall-cmd --add-port="$port"/"$protocol"
+firewall-cmd --zone=trusted --add-source=10.8.0.0/24
+firewall-cmd --permanent --add-port="$port"/"$protocol"
+firewall-cmd --permanent --zone=trusted --add-source=10.8.0.0/24
+firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to "$ip"
+firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to "$ip"
+if [[ -n "$ip6" ]]; then
+    firewall-cmd --zone=trusted --add-source=fddd:1194:1194:1194::/64
+    firewall-cmd --permanent --zone=trusted --add-source=fddd:1194:1194:1194::/64
+    firewall-cmd --direct --add-rule ipv6 nat POSTROUTING 0 -s fddd:1194:1194:1194::/64 ! -d fddd:1194:1194:1194::/64 -j SNAT --to "$ip6"
+    firewall-cmd --permanent --direct --add-rule ipv6 nat POSTROUTING 0 -s fddd:1194:1194:1194::/64 ! -d fddd:1194:1194:1194::/64 -j SNAT --to "$ip6"
+fi
 
-### Sponsor
-This project is proudly sponsored by our friends at [FrogeHost](https://froge.host/?utm_source=nyr).
